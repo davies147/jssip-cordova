@@ -1,0 +1,23 @@
+{
+  "name": "jssip-cordova",
+  "version": "0.1.0",
+  "description": "Plugin to run JsSIP on Cordova",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/versatica/jssip-cordova.git"
+  },
+  "keywords": [
+    "jssip",
+    "cordova"
+  ],
+  "author": "Iñaki Baz Castillo <ibc@aliax.net>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/versatica/jssip-cordova/issues"
+  },
+  "homepage": "https://github.com/versatica/jssip-cordova"
+}
