@@ -1,9 +1,4 @@
 /**
- * NOTES: Currently just outgoing sessions are implemented.
- */
-
-
-/**
  * Dependencies.
  */
 var debug = require('debug')('JsSIP:CordovaRTCEngine');
@@ -178,8 +173,6 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
     }
   });
 
-  // TODO: log other events.
-
   this.phonertc.session.on('answer', function(data) {
     debug('phonertc.session.on(answer) | data:', data);
   });
@@ -220,8 +213,6 @@ JsSIPCordovaRTCEngine.prototype.getRemoteDescription = function() {
   // Return "like" a RTCSessionDescription object.
   return { sdp: this.phonertc.remoteSDP };
 };
-
-
 
 
 JsSIPCordovaRTCEngine.prototype.getLocalStreams = function() {
