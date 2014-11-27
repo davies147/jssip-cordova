@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/versatica/jssip-cordova/issues"
   },
-  "homepage": "https://github.com/versatica/jssip-cordova"
+  "homepage": "https://github.com/versatica/jssip-cordova",
+  "dependencies": {
+    "debug": "^2.1.0"
+  }
 }
