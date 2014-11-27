@@ -61,6 +61,14 @@ function JsSIPCordovaRTCEngine(session, options) {
       password: turn_server.credential
     };
   }
+  else {
+    // Phonertc API sucks. This is needed if no TURN is desired.
+    this.phonertc.config.turn = {
+      host: '',
+      username: 'test',
+      password: 'test'
+    };
+  }
 }
 
 
@@ -120,6 +128,8 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
     return;
   }
 
+  debug('config: ', this.phonertc.config);
+
   this.phonertc.session.on('sendMessage', function(data) {
     debug('phonertc.session.on(sendMessage) | data:', data);
 
@@ -161,7 +171,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
       this.ready = true;
 
       if (onSuccess) {
-        onSuccess(data.sdp);
+        onSuccess(self.phonertc.localSDP);
       }
       // NOTE: Ensure it is called just once.
       onSuccess = null;
@@ -177,6 +187,9 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
   this.phonertc.session.on('disconnect', function(data) {
     debug('phonertc.session.on(disconnect) | data:', data);
   });
+
+  // Start the media flow.
+  this.phonertc.session.call();
 };
 
 
