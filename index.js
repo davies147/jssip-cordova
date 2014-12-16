@@ -75,7 +75,7 @@ JsSIPCordovaRTCEngine.prototype.isReady = function() {
 JsSIPCordovaRTCEngine.prototype.getUserMedia = function(onSuccess, onFailure, constraints) {
   debug('getUserMedia() | constraints:', constraints);
 
-  if (!constraints || (!constraints.audio && !constraints.video)) {
+  if (!constraints) {
     debugerror('getUserMedia(): bad media constraints');
     onFailure(new Error('JsSIPCordovaRTCEngine.getUserMedia(): bad media constraints'));
     return;
