@@ -16,7 +16,26 @@ module.exports = JsSIPCordovaRTCEngine;
  */
 var C = {
   REGEXP_GOOD_CANDIDATE: new RegExp(/^a=/i),
+  REGEXP_RELAY_CANDIDATE: new RegExp(/ relay /i)
 };
+
+
+/**
+ * Internal variables.
+ */
+var VAR = {
+  iceRelayCandidateTimeout: null
+};
+
+
+// Defined module properties.
+Object.defineProperties(JsSIPCordovaRTCEngine, {
+  iceRelayCandidateTimeout: {
+    set: function(timeout) {
+      VAR.iceRelayCandidateTimeout = timeout;
+    }
+  }
+});
 
 
 function JsSIPCordovaRTCEngine(session, options) {
@@ -39,6 +58,8 @@ function JsSIPCordovaRTCEngine(session, options) {
     remoteSDP: null
   };
   this.ready = true;
+  this.gotIceRelayCandidate = false;
+  this.iceRelayCandidateTimer = null;
 
   // Must use a single TURN server.
   if (! turn_server) {
@@ -128,6 +149,16 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
   this.phonertc.session.on('sendMessage', function(data) {
     debug('phonertc.session.on(sendMessage) | data:', data);
 
+    function onIceDone() {
+      self.ready = true;
+
+      if (onSuccess) {
+        onSuccess(self.phonertc.localSDP);
+      }
+      // NOTE: Ensure it is called just once.
+      onSuccess = null;
+    }
+
     // Got the SDP offe (ICE candidates missing yet).
     if (data.type === 'offer') {
       self.phonertc.localSDP = data.sdp;
@@ -137,6 +168,16 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
     else if (data.type === 'candidate') {
       var candidate = data.candidate;
 
+      if (C.REGEXP_RELAY_CANDIDATE.test(candidate) && VAR.iceRelayCandidateTimeout) {
+        if (! self.iceRelayCandidateTimer) {
+          self.iceRelayCandidateTimer = setTimeout(function() {
+            delete self.iceRelayCandidateTimer;
+            onIceDone();
+          }, VAR.iceRelayCandidateTimeout);
+        }
+      }
+
+      // Allow old/wrong syntax in Chrome/Firefox.
       if (! C.REGEXP_GOOD_CANDIDATE.test(candidate)) {
         candidate = 'a=' + candidate + '\r\n';
       }
@@ -163,13 +204,10 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 
     // ICE gathering ends.
     else if (data.type === 'IceGatheringChange' && data.state === 'COMPLETE') {
-      this.ready = true;
-
-      if (onSuccess) {
-        onSuccess(self.phonertc.localSDP);
-      }
-      // NOTE: Ensure it is called just once.
-      onSuccess = null;
+      // PhoneRTC fires 'COMPLETE' before all the relay candidates, so wait a bit.
+      setTimeout(function() {
+        onIceDone();
+      }, 100);
     }
   });
 
@@ -234,6 +272,8 @@ JsSIPCordovaRTCEngine.prototype.close = function() {
 
   debug('closing phonertc.session');
 
+  clearTimeout(this.iceRelayCandidateTimer);
+  delete this.iceRelayCandidateTimer;
   this.ready = false;
   try {
     this.phonertc.session.close();

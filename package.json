@@ -1,6 +1,6 @@
 {
   "name": "jssip-cordova",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Plugin to run JsSIP on Cordova",
   "main": "index.js",
   "scripts": {
@@ -23,5 +23,10 @@
   "homepage": "https://github.com/versatica/jssip-cordova",
   "dependencies": {
     "debug": "^2.1.0"
+  },
+  "devDependencies": {
+    "gulp": "git+https://github.com/gulpjs/gulp.git#4.0",
+    "gulp-jshint": "^1.9.0",
+    "jshint-stylish": "^1.0.0"
   }
 }
